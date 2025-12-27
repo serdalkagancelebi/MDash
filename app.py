@@ -198,4 +198,7 @@ def reset_filters(n_clicks):
 
 if __name__ == "__main__":
     print("Sunucu başlatılıyor...")
+
     app.run(debug=True, host="127.0.0.1", port=8050)
+
+server = app.server
