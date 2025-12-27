@@ -74,7 +74,7 @@ def main_layout(df):
                     ),
                     dcc.Graph(id="sales-trend", figure=sales_trend_chart(df),
                               responsive=True,
-                              config={'responsive': True, 'displayModeBar': 'hover', 'scrollZoom': False},
+                              config={'responsive': True, 'displayModeBar': False, 'scrollZoom': False},
                               style={'width': '100%', 'height': '50vh', 'minHeight': '300px'})
                 ])
             ]),
@@ -122,16 +122,16 @@ def main_layout(df):
             # Grafikler
             dbc.Row([
                 dbc.Col(dcc.Graph(id="top-stock", figure=top_stock_chart(df), responsive=True,
-                                  config={'responsive': True, 'displayModeBar': 'hover'},
+                                  config={'responsive': True, 'displayModeBar': False},
                                   style={'height': '50vh'}), md=6),
                 dbc.Col(dcc.Graph(id="cash-expense", figure=cash_vs_expense_pie(df), responsive=True,
-                                  config={'responsive': True, 'displayModeBar': 'hover'},
+                                  config={'responsive': True, 'displayModeBar': False},
                                   style={'height': '50vh'}), md=6)
             ], className="mb-4"),
 
             dbc.Row([
                 dbc.Col(dcc.Graph(id="segment-scatter", figure=segment_scatter(df), responsive=True,
-                                  config={'responsive': True, 'displayModeBar': 'hover'},
+                                  config={'responsive': True, 'displayModeBar': False},
                                   style={'height': '50vh'}), md=12)
             ]),
 
@@ -146,13 +146,13 @@ def main_layout(df):
 
             dbc.Row([
                 dbc.Col(dcc.Graph(id="profit-scatter", figure=profit_scatter(df), responsive=True,
-                                  config={'responsive': True, 'displayModeBar': 'hover'},
+                                  config={'responsive': True, 'displayModeBar': False},
                                   style={'height': '60vh'}), md=12)
             ]),
 
             dbc.Row([
                 dbc.Col(dcc.Graph(id="sales-year-comparison", figure=sales_year_comparison_chart(df), responsive=True,
-                                  config={'responsive': True, 'displayModeBar': 'hover'},
+                                  config={'responsive': True, 'displayModeBar': False},
                                   style={'height': '50vh'}), md=12)
             ]),
 
