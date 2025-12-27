@@ -32,11 +32,40 @@ def main_layout(df):
         className="d-flex align-items-center justify-content-end mt-3 mb-3 px-3"
     )
 
-    # Tüm dashboard'ı saran wrapper (arka planı dinamik değiştirmek için)
+    # Dosya yükleme bölümü
+    upload_section = dbc.Card([
+        dbc.CardBody([
+            html.H5("Kendi Verinizi Yükleyin", className="text-center mb-3"),
+            dcc.Upload(
+                id="upload-data",
+                children=html.Div([
+                    "CSV veya Excel dosyanızı sürükleyin veya ",
+                    html.A("seçin", href="#", style={"color": "white"})
+                ]),
+                style={
+                    "width": "100%",
+                    "height": "60px",
+                    "lineHeight": "60px",
+                    "borderWidth": "1px",
+                    "borderStyle": "dashed",
+                    "borderRadius": "5px",
+                    "textAlign": "center",
+                    "margin": "10px"
+                },
+                multiple=False
+            ),
+            html.Div(id="upload-status", className="text-center mt-2")
+        ])
+    ], className="mb-4")
+
+    # Tüm dashboard'ı saran wrapper
     return html.Div(
         id="theme-wrapper",
-        className="bg-light",  # Varsayılan light mod için açık gri/beyaz
+        className="bg-light",
         children=dbc.Container([
+            # Dosya yükleme bölümü en üstte
+            upload_section,
+
             # Toggle + Başlık
             dbc.Row([
                 dbc.Col(
@@ -49,7 +78,8 @@ def main_layout(df):
             html.Div(id="kpi-cards", children=generate_kpi_cards(df), className="mb-4"),
 
             html.Hr(className="border-secondary"),
-
+            
+            # Filtreler ve Grafikler
             dbc.Row([
                 dbc.Col([
                     html.Div([

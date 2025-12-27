@@ -198,7 +198,52 @@ def reset_filters(n_clicks):
 
 if __name__ == "__main__":
     print("Sunucu başlatılıyor...")
-
     app.run(debug=True, host="127.0.0.1", port=8050)
 
-server = app.server
+    server = app.server
+
+    # Dosya yükleme callback'i (müşterinin kendi verisini yüklemesi için)
+@app.callback(
+    Output("kpi-cards", "children"),
+    Output("sales-trend", "figure"),
+    Output("top-stock", "figure"),
+    Output("cash-expense", "figure"),
+    Output("segment-scatter", "figure"),
+    Output("profit-scatter", "figure"),
+    Output("sales-year-comparison", "figure"),
+    Input("upload-data", "contents"),
+    State("upload-data", "filename"),
+    State("upload-data", "last_modified"),
+    prevent_initial_call=True
+)
+def update_from_upload(contents, filename, date):
+    if contents is None:
+        raise PreventUpdate
+
+    # Dosyayı parse et (CSV veya Excel)
+    content_type, content_string = contents.split(',')
+    decoded = base64.b64decode(content_string)
+    
+    if filename.endswith('.csv'):
+        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+    elif filename.endswith('.xlsx'):
+        df = pd.read_excel(io.BytesIO(decoded))
+    else:
+        return "Sadece CSV veya Excel dosyası yükleyebilirsiniz!"
+
+    # Veri formatını kontrol et ve dönüştür
+    df["Tarih"] = pd.to_datetime(df["Tarih"], dayfirst=True, errors="coerce")
+    df["Satış"] = pd.to_numeric(df["Satış"], errors="coerce")
+    df["Tahsilat"] = pd.to_numeric(df["Tahsilat"], errors="coerce")
+    df["Gider"] = pd.to_numeric(df["Gider"], errors="coerce")
+
+    # Dashboard'u güncelle
+    kpi_cards = generate_kpi_cards(df)
+    sales_fig = sales_trend_chart(df)
+    stock_fig = top_stock_chart(df)
+    cash_fig = cash_vs_expense_pie(df)
+    segment_fig = segment_scatter(df)
+    profit_fig = profit_scatter(df)
+    year_fig = sales_year_comparison_chart(df)
+
+    return kpi_cards, sales_fig, stock_fig, cash_fig, segment_fig, profit_fig, year_fig
