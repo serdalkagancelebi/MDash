@@ -1,0 +1,13 @@
+/* assets/custom.css */
+
+/* Karanlık modda radio button metinleri */
+[data-bs-theme="dark"] .radio-items-label,
+[data-bs-theme="dark"] .RadioItems label {
+    color: #e0e0e0 !important;  /* Açık gri-beyaz */
+}
+
+/* Light modda varsayılan siyah kalır */
+[data-bs-theme="light"] .radio-items-label,
+[data-bs-theme="light"] .RadioItems label {
+    color: #212529 !important;
+}

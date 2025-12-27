@@ -1,0 +1,5 @@
+black          # Kod formatlama
+flake8         # Kod kalite kontrolü
+pytest         # Test framework
+ipython        # Etkileşimli Python shell
+jupyter        # Notebook desteği
