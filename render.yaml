@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: MDash
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:server
+    runtime: python3.11   # ← Python sürümünü 3.11'e sabitle
