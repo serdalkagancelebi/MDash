@@ -1,3 +1,4 @@
+import base64, io
 import dash
 from dash import dcc, html, Input, Output, State, clientside_callback
 import dash_bootstrap_components as dbc
@@ -32,7 +33,11 @@ app = dash.Dash(
     suppress_callback_exceptions=True
 )
 
+# 🔑 Buraya ekle
+server = app.server
+
 load_figure_template(["bootstrap", "bootstrap_dark"])
+
 
 # Veri yükleme
 df_global = pd.read_csv("data/mikro_dummy_data.csv")
@@ -200,8 +205,6 @@ if __name__ == "__main__":
     print("Sunucu başlatılıyor...")
     app.run(debug=True, host="127.0.0.1", port=8050)
 
-    server = app.server
-
     # Dosya yükleme callback'i (müşterinin kendi verisini yüklemesi için)
 @app.callback(
     Output("kpi-cards", "children"),
@@ -220,24 +223,21 @@ def update_from_upload(contents, filename, date):
     if contents is None:
         raise PreventUpdate
 
-    # Dosyayı parse et (CSV veya Excel)
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
-    
+
     if filename.endswith('.csv'):
         df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
     elif filename.endswith('.xlsx'):
         df = pd.read_excel(io.BytesIO(decoded))
     else:
-        return "Sadece CSV veya Excel dosyası yükleyebilirsiniz!"
+        raise PreventUpdate
 
-    # Veri formatını kontrol et ve dönüştür
     df["Tarih"] = pd.to_datetime(df["Tarih"], dayfirst=True, errors="coerce")
     df["Satış"] = pd.to_numeric(df["Satış"], errors="coerce")
     df["Tahsilat"] = pd.to_numeric(df["Tahsilat"], errors="coerce")
     df["Gider"] = pd.to_numeric(df["Gider"], errors="coerce")
 
-    # Dashboard'u güncelle
     kpi_cards = generate_kpi_cards(df)
     sales_fig = sales_trend_chart(df)
     stock_fig = top_stock_chart(df)
@@ -247,3 +247,8 @@ def update_from_upload(contents, filename, date):
     year_fig = sales_year_comparison_chart(df)
 
     return kpi_cards, sales_fig, stock_fig, cash_fig, segment_fig, profit_fig, year_fig
+
+
+if __name__ == "__main__":
+    print("Sunucu başlatılıyor...")
+    app.run(debug=True, host="127.0.0.1", port=8050)
