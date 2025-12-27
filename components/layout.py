@@ -194,7 +194,7 @@ def main_layout(df):
                                     ),
                                     dbc.Col(
                                         dbc.Button(
-                                            "🧹 Filtreyi Temizle",
+                                            "🧹 Filtre Temizle",
                                             id="reset-filters-button",
                                             color="danger",
                                             outline=True,
