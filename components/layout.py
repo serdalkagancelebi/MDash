@@ -40,7 +40,7 @@ def main_layout(df):
                 id="upload-data",
                 children=html.Div([
                     "CSV veya Excel dosyanızı sürükleyin veya ",
-                    html.A("seçin", href="#", style={"color": "white"})
+                    html.A("seçin", href="#", style={"color": "black"})
                 ]),
                 style={
                     "width": "100%",
