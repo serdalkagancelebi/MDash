@@ -16,50 +16,59 @@ def main_layout(df):
     max_date = df["Tarih"].max().date()
     segment_dropdown, customer_dropdown = generate_filters(df)
 
+
     return html.Div(
         id="theme-wrapper",
-        className="bg-light",
+        style={
+            "data-bs-theme": "dark",
+            "className": "bg-dark text-white",
+            "minHeight": "100vh",
+            "display": "flex",
+            "flexDirection": "column",
+            #"overflow": "hidden"   # ← kritik: iç taşmayı engelle
+        },
+
         children=dbc.Container([
-            # Dosya yükleme + Store
+            # Dosya yükleme + Store + Örnek veri linki
             dbc.Card([
-            dbc.CardBody([
-                html.H5("Kendi Verinizi Yükleyin", className="text-center mb-3"),
-                dcc.Upload(
-                    id="upload-data",
-                    children=html.Div([
-                        "CSV veya Excel dosyanızı sürükleyin veya ",
-                        html.A("seçin", href="#", style={"color": "inherit"}),  # inherit → tema uyumlu olsun
-                    ]),
-                    style={
-                        "width": "100%", "height": "60px", "lineHeight": "60px",
-                        "borderWidth": "1px", "borderStyle": "dashed", "borderRadius": "5px",
-                        "textAlign": "center", "margin": "10px 0"
-                    },
-                    multiple=False
-                ),
-                html.Div([
-                    "Örnek veri setini indirmek için ",
-                    html.A(
-                        "buraya tıklayın",
-                        href="/assets/ornekveri.csv",
-                        download="ornek_veri.csv",           # indirme adı olarak çıksın
-                        target="_blank",
-                        style={"color": "var(--bs-primary)", "textDecoration": "underline"}
+                dbc.CardBody([
+                    html.H5("Kendi Verinizi Yükleyin", className="text-center mb-3"),
+                    dcc.Upload(
+                        id="upload-data",
+                        children=html.Div([
+                            "CSV veya Excel dosyanızı sürükleyin veya ",
+                            html.A("seçin", href="#", style={"color": "inherit"})
+                        ]),
+                        style={
+                            "width": "100%", "height": "60px", "lineHeight": "60px",
+                            "borderWidth": "1px", "borderStyle": "dashed", "borderRadius": "5px",
+                            "textAlign": "center", "margin": "10px 0"
+                        },
+                        multiple=False
                     ),
-                    "."
-                ], className="text-center mt-2 small text-muted"),
-                html.Div(id="upload-status", className="text-center mt-2"),
-                dcc.Store(id="uploaded-data", storage_type="memory")
-            ])
+                    html.Div([
+                        "Örnek veri setini indirmek için ",
+                        html.A(
+                            "buraya tıklayın",
+                            href="/assets/ornekveri.csv",
+                            download="ornek_veri.csv",
+                            target="_blank",
+                            style={"color": "var(--bs-primary)", "textDecoration": "underline"}
+                        ),
+                        "."
+                    ], className="text-center mt-2 small text-muted"),
+                    html.Div(id="upload-status", className="text-center mt-2"),
+                    dcc.Store(id="uploaded-data", storage_type="memory")
+                ])
             ], className="mb-4"),
 
             # Başlık + Tema toggle
             dbc.Row([
-                dbc.Col(html.H2("Mikro ERP Dashboard", className="text-center my-3 text-body"), md=10),
+                dbc.Col(html.H2("Mikro ERP Dashboard", className="text-center my-3"), md=10),
                 dbc.Col(html.Div([
-                    html.I(className="fa fa-moon me-2 text-body", style={"fontSize": "1.3rem"}),
+                    html.I(className="fa fa-moon me-2", style={"fontSize": "1.3rem"}),
                     dbc.Switch(id="color-mode-switch", value=False, persistence=True),
-                    html.I(className="fa fa-sun ms-2 text-body", style={"fontSize": "1.3rem"}),
+                    html.I(className="fa fa-sun ms-2", style={"fontSize": "1.3rem"}),
                 ], className="d-flex align-items-center justify-content-end"), md=2)
             ]),
 
@@ -69,7 +78,7 @@ def main_layout(df):
             # Satış trendi + tarih filtreleri
             dbc.Row([
                 dbc.Col([
-                    html.H4("📊 Günlük Satış Trendleri", className="text-center mb-3 text-body"),
+                    html.H4("📊 Günlük Satış Trendleri", className="text-center mb-3"),
                     dcc.RadioItems(
                         id="sales-trend-range",
                         options=[
@@ -86,7 +95,7 @@ def main_layout(df):
                     dcc.Graph(id="sales-trend", figure=sales_trend_chart(df),
                               responsive=True,
                               config={'responsive': True, 'displayModeBar': False, 'scrollZoom': False},
-                              style={'width': '100%', 'height': '50vh', 'minHeight': '300px'})
+                              style={'width': '100%', 'height': '400px', 'minHeight': '300px', 'maxHeight': '50vh','backgroundColor': 'transparent'})
                 ])
             ], className="mb-5"),
 
@@ -101,7 +110,7 @@ def main_layout(df):
                     # Tarih seçimi + butonlar
                     dbc.Row(
                         className="g-3 justify-content-center mb-4",
-                        align="end",  # butonları aşağı hizala
+                        align="end",
                         children=[
                             # Başlangıç
                             dbc.Col(
@@ -117,16 +126,13 @@ def main_layout(df):
                                         date=min_date,
                                         display_format="DD.MM.YYYY",
                                         placeholder="Başlangıç",
-                                        className="w-100 form-control-sm",  # biraz daha kompakt
+                                        className="w-100 form-control-sm",
                                         persistence=True,
                                         persistence_type="local",
                                     ),
                                 ],
-                                xs=12,
-                                sm=6,
-                                md=5,
-                                lg=4,
-                                className="text-center"  # label + input ortalı
+                                xs=12, sm=6, md=5, lg=4,
+                                className="text-center"
                             ),
 
                             # Bitiş
@@ -148,10 +154,7 @@ def main_layout(df):
                                         persistence_type="local",
                                     ),
                                 ],
-                                xs=12,
-                                sm=6,
-                                md=5,
-                                lg=4,
+                                xs=12, sm=6, md=5, lg=4,
                                 className="text-center"
                             ),
 
@@ -165,21 +168,23 @@ def main_layout(df):
                                     ],
                                     className="d-flex flex-wrap justify-content-center gap-2 w-100"
                                 ),
-                                xs=12,
-                                sm=12,
-                                md="auto",
-                                lg="auto",
+                                xs=12, sm=12, md="auto", lg="auto",
                                 className="d-flex align-items-end justify-content-center"
                             ),
                         ]
                     ),
 
-                    # Segment + Müşteri + Temizle
+                    # Segment + Müşteri + Temizle (eski Row yerine bu iki Row'u koy)
                     dbc.Row(
-                        className="g-3 justify-content-center",
+                        className="g-3 justify-content-center mb-2",
                         children=[
-                            dbc.Col(segment_dropdown, xs=12, sm=6, md=5, lg=4, className="mb-2 mb-md-0"),
-                            dbc.Col(customer_dropdown, xs=12, sm=6, md=5, lg=4, className="mb-2 mb-md-0"),
+                            dbc.Col(segment_dropdown, xs=12, sm=6, md=6, lg=5, className="mb-2 mb-md-0"),
+                            dbc.Col(customer_dropdown, xs=12, sm=6, md=6, lg=5, className="mb-2 mb-md-0"),
+                        ]
+                    ),
+                    dbc.Row(
+                        className="justify-content-center",
+                        children=[
                             dbc.Col(
                                 dbc.Button(
                                     "🧹 Tüm Filtreleri Temizle",
@@ -188,59 +193,57 @@ def main_layout(df):
                                     size="md",
                                     className="w-100 py-2"
                                 ),
-                                xs=12,
-                                sm=12,
-                                md=12,
-                                lg=4,
-                                className="d-flex align-items-center"
-                            ),
+                                xs=12,          # mobilde tam genişlik
+                                sm=10,          # küçük ekranda daha geniş
+                                md=8,           # orta ekranda geniş
+                                lg=6,           # büyük ekranda daha geniş (yarım genişlik)
+                                xl=5,           # çok büyük ekranda biraz daha dar
+                                className="d-flex justify-content-center"  # ortala
+                            )
                         ]
                     ),
                 ]),
                 className="mb-4 shadow-sm border-0 mx-auto",
-                style={"maxWidth": "980px"}  # masaüstünde çok yayılmasın, ortalı kalsın
+                style={"maxWidth": "980px"}
             ),
 
             # Grafikler
             dbc.Row([
                 dbc.Col(dcc.Graph(id="top-stock", figure=top_stock_chart(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
-                                  style={'height': '50vh'}), md=6),
+                                  style={'width': '100%', 'height': '400px'}), md=6),
                 dbc.Col(dcc.Graph(id="cash-expense", figure=cash_vs_expense_pie(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
-                                  style={'height': '50vh'}), md=6)
+                                  style={'width': '100%', 'height': '400px', 'minHeight': '300px'}), md=6)
             ], className="mb-4"),
 
             dbc.Row([
                 dbc.Col(dcc.Graph(id="segment-scatter", figure=segment_scatter(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
-                                  style={'height': '50vh'}), md=12)
+                                  style={'width': '100%', 'height': '450px'}), md=12)
             ], className="mb-5"),
 
-            html.Label("Kâr Marjı Eşiği (%)", className="w-100 text-center text-body mt-4"),
+            html.Label("Kâr Marjı Eşiği (%)", className="w-100 text-center mt-4"),
             dcc.Slider(
                 id="margin-threshold-slider",
                 min=5, max=30, step=1, value=10,
                 marks={i: f"%{i}" for i in range(5, 31, 5)},
                 tooltip={"placement": "bottom", "always_visible": True},
                 className="w-100"
-                
             ),
             
-            dbc.Row(className="mt-5"),  # sadece boş row
+            dbc.Row(className="mt-5"),  # boşluk
 
             dbc.Row([
                 dbc.Col(dcc.Graph(id="profit-scatter", figure=profit_scatter(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
-                                  style={'height': '60vh'}), md=12)
+                                  style={'width': '100%', 'height': '500px'}), md=12)
             ], className="mb-5"),
-            
-            #dbc.Row(className="my-5"),  # sadece boş row
             
             dbc.Row([
                 dbc.Col(dcc.Graph(id="sales-year-comparison", figure=sales_year_comparison_chart(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
-                                  style={'height': '50vh'}), md=12)
+                                  style={'width': '100%', 'height': '400px'}), md=12)
             ]),
 
             # Footer
@@ -254,6 +257,6 @@ def main_layout(df):
                        target="_blank",
                        className="text-muted d-block text-center mt-2",
                        style={"fontSize": "0.85rem"})
-            ], className="mt-5 mb-4")
-        ], fluid=True, className="px-2")
+            ], className="mt-5 mb-4 overflow-hidden")
+        ], fluid=True, className="px-2 flex-grow-1 d-flex flex-column")
     )
