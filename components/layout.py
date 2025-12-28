@@ -63,19 +63,25 @@ def main_layout(df):
             ], className="mb-4"),
 
             # Başlık + Tema toggle
-            dbc.Row([
-                dbc.Col(html.H2("Mikro ERP Dashboard", className="text-center my-3"), md=10),
-                dbc.Col(html.Div([
-                    html.I(className="fa fa-moon me-2", style={"fontSize": "1.3rem"}),
-                    dbc.Switch(
-                        id="color-mode-switch",
-                        value=False,
-                        persistence=True,
-                        className="pointer-events-auto z-3"  # ← ekle
+            dbc.Row(
+                className="position-relative align-items-start my-3",  # my-3 genel yükseklik için yeterli
+                children=[
+                    dbc.Col(
+                        html.H2("ERP/CRM Dashboard", className="text-center my-5"),  # my-4 ile başlık biraz aşağıda, toggle üstte kalır
+                        md=12, xs=12,
+                        className="text-center"
                     ),
-                    html.I(className="fa fa-sun ms-2", style={"fontSize": "1.3rem"}),
-                ], className="d-flex align-items-center justify-content-end"), md=2)
-            ]),
+                    dbc.Col(
+                        html.Div([
+                            html.I(className="fa fa-moon me-2", style={"fontSize": "1.3rem"}),
+                            dbc.Switch(id="color-mode-switch", value=False, persistence=True),
+                            html.I(className="fa fa-sun ms-2", style={"fontSize": "1.3rem"}),
+                        ], className="d-flex align-items-center justify-content-end"),
+                        md=12, xs=12,
+                        className="position-absolute top-0 end-0 mt-0 me-3"  # mt-2 ile toggle'ı biraz aşağı çek, başlık ile arasına boşluk gelsin
+                    )
+                ]
+            ),
 
             html.Div(id="kpi-cards", children=generate_kpi_cards(df), className="mb-4"),
             html.Hr(className="border-secondary"),
