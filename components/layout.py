@@ -67,7 +67,12 @@ def main_layout(df):
                 dbc.Col(html.H2("Mikro ERP Dashboard", className="text-center my-3"), md=10),
                 dbc.Col(html.Div([
                     html.I(className="fa fa-moon me-2", style={"fontSize": "1.3rem"}),
-                    dbc.Switch(id="color-mode-switch", value=False, persistence=True),
+                    dbc.Switch(
+                        id="color-mode-switch",
+                        value=False,
+                        persistence=True,
+                        className="pointer-events-auto z-3"  # ← ekle
+                    ),
                     html.I(className="fa fa-sun ms-2", style={"fontSize": "1.3rem"}),
                 ], className="d-flex align-items-center justify-content-end"), md=2)
             ]),
