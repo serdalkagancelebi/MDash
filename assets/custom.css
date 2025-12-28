@@ -96,3 +96,11 @@ footer, .mt-5.mb-4, .text-center {
 #color-mode-switch {
     cursor: pointer;
 }
+
+/* Mobil'de DatePickerSingle'da native input'u engelle */
+.DateInput_input {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+
