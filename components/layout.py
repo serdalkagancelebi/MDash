@@ -121,32 +121,34 @@ def main_layout(df):
                     # Tarih seçimi + butonlar
                     dbc.Row(
                         className="g-3 justify-content-center mb-4",
-                        align="end",
+                        align="end",  # butonları aşağı hizala
                         children=[
                             # Başlangıç
                             dbc.Col(
                                 [
-                                    html.Label(
-                                        "Başlangıç",
-                                        className="form-label small text-center d-block mb-1 fw-medium"
-                                    ),
-                                    dcc.DatePickerSingle(
-                                        id="start-date",
-                                        min_date_allowed=min_date,
-                                        max_date_allowed=max_date,
-                                        date=min_date,
-                                        display_format="DD.MM.YYYY",
-                                        placeholder="Başlangıç",
-                                        className="w-100 form-control-sm",
-                                        persistence=True,
-                                        persistence_type="local",
-                                        with_portal=False,
-                                        calendar_orientation="horizontal"
-                                    ),
+                                    html.Label("Başlangıç", className="form-label small text-center d-block mb-1 fw-medium"),
+                                    html.Div(
+                                        dcc.DatePickerSingle(
+                                            id="start-date",
+                                            min_date_allowed=min_date,
+                                            max_date_allowed=max_date,
+                                            date=min_date,
+                                            display_format="DD.MM.YYYY",
+                                            placeholder="Başlangıç",
+                                            className="w-100 form-control-sm",
+                                            persistence=True,
+                                            persistence_type="local",
+                                            with_portal=False,
+                                            with_full_screen_portal=False,
+                                            style={"zIndex": 1000, "position": "relative"},
+                                        ),
+                                        className="date-picker-wrapper"   # ← kritik ekleme
+                                    )
                                 ],
                                 xs=12, sm=6, md=5, lg=4,
                                 className="text-center"
                             ),
+
 
                             # Bitiş
                             dbc.Col(
@@ -155,23 +157,31 @@ def main_layout(df):
                                         "Bitiş",
                                         className="form-label small text-center d-block mb-1 fw-medium"
                                     ),
-                                    dcc.DatePickerSingle(
-                                        id="end-date",
-                                        min_date_allowed=min_date,
-                                        max_date_allowed=max_date,
-                                        date=max_date,
-                                        display_format="DD.MM.YYYY",
-                                        placeholder="Bitiş",
-                                        className="w-100 form-control-sm",
-                                        persistence=True,
-                                        persistence_type="local",
-                                        with_portal=False,
-                                        calendar_orientation="horizontal"
-                                    ),
+                                    html.Div(
+                                        dcc.DatePickerSingle(
+                                            id="end-date",
+                                            min_date_allowed=min_date,
+                                            max_date_allowed=max_date,
+                                            date=max_date,
+                                            display_format="DD.MM.YYYY",
+                                            placeholder="Bitiş",
+                                            className="w-100 form-control-sm",
+                                            persistence=True,
+                                            persistence_type="local",
+                                            with_portal=False,              # portal kapalı → input altında açılır
+                                            with_full_screen_portal=False,  # mobilde tam ekran kapalı
+                                            style={"zIndex": 1000, "position": "relative"},
+                                        ),
+                                        className="date-picker-wrapper"     # ← kritik ekleme
+                                    )
                                 ],
-                                xs=12, sm=6, md=5, lg=4,
+                                xs=12,
+                                sm=6,
+                                md=5,
+                                lg=4,
                                 className="text-center"
                             ),
+
 
                             # Butonlar
                             dbc.Col(
@@ -183,7 +193,10 @@ def main_layout(df):
                                     ],
                                     className="d-flex flex-wrap justify-content-center gap-2 w-100"
                                 ),
-                                xs=12, sm=12, md="auto", lg="auto",
+                                xs=12,
+                                sm=12,
+                                md="auto",
+                                lg="auto",
                                 className="d-flex align-items-end justify-content-center"
                             ),
                         ]
