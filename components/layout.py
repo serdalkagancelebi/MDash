@@ -77,47 +77,118 @@ def main_layout(df):
                               config={'responsive': True, 'displayModeBar': False, 'scrollZoom': False},
                               style={'width': '100%', 'height': '50vh', 'minHeight': '300px'})
                 ])
-            ]),
+            ], className="mb-5"),
 
-            # Tarih filtreleri
-            dbc.Card([
+            # Tarih seçimi + hızlı butonlar (mobil → dikey, masaüstü → daha yatay)
+            dbc.Card(
                 dbc.CardBody([
-                    html.H4("📅 Tarihe Göre Filtrele", className="text-center mb-4 text-body"),
-                    dbc.Row([
-                        dbc.Col(dcc.DatePickerSingle(
-                            id="start-date",
-                            min_date_allowed=min_date,
-                            max_date_allowed=max_date,
-                            date=min_date,
-                            display_format="DD.MM.YYYY",
-                            persistence=True,
-                            className="w-100"
-                        ), md=3),
-                        dbc.Col(dcc.DatePickerSingle(
-                            id="end-date",
-                            min_date_allowed=min_date,
-                            max_date_allowed=max_date,
-                            date=max_date,
-                            display_format="DD.MM.YYYY",
-                            persistence=True,
-                            className="w-100"
-                        ), md=3),
-                        dbc.Col([
-                            dbc.Button("📅 Bugün", id="today-button", color="primary", outline=True, size="sm", className="me-1"),
-                            dbc.Button("📊 Son İşlem Tarihi", id="last-date-button", color="secondary", outline=True, size="sm", className="me-1"),
-                            dbc.Button("📅 Tarih Temizle", id="reset-date-button", color="danger", outline=True, size="sm")
-                        ], md=6, className="d-flex align-items-center flex-wrap justify-content-center")
-                    ])
-                ])
-            ], className="mb-4"),
+                    html.H5(
+                        "Tarih ve Müşteri Filtresi",
+                        className="card-title text-center mb-4 fw-semibold"
+                    ),
 
-            # Segment ve müşteri filtreleri
-            dbc.Row([
-                dbc.Col(segment_dropdown, md=4),
-                dbc.Col(customer_dropdown, md=4),
-                dbc.Col(dbc.Button("🧹 Filtreyi Temizle", id="reset-filters-button",
-                                   color="danger", outline=True, size="sm", className="w-100"), md=2)
-            ], className="mb-4 justify-content-center"),
+                    # Tarih seçimi + butonlar
+                    dbc.Row(
+                        className="g-3 justify-content-center mb-4",
+                        align="end",  # butonları aşağı hizala
+                        children=[
+                            # Başlangıç
+                            dbc.Col(
+                                [
+                                    html.Label(
+                                        "Başlangıç",
+                                        className="form-label small text-center d-block mb-1 fw-medium"
+                                    ),
+                                    dcc.DatePickerSingle(
+                                        id="start-date",
+                                        min_date_allowed=min_date,
+                                        max_date_allowed=max_date,
+                                        date=min_date,
+                                        display_format="DD.MM.YYYY",
+                                        placeholder="Başlangıç",
+                                        className="w-100 form-control-sm",  # biraz daha kompakt
+                                        persistence=True,
+                                        persistence_type="local",
+                                    ),
+                                ],
+                                xs=12,
+                                sm=6,
+                                md=5,
+                                lg=4,
+                                className="text-center"  # label + input ortalı
+                            ),
+
+                            # Bitiş
+                            dbc.Col(
+                                [
+                                    html.Label(
+                                        "Bitiş",
+                                        className="form-label small text-center d-block mb-1 fw-medium"
+                                    ),
+                                    dcc.DatePickerSingle(
+                                        id="end-date",
+                                        min_date_allowed=min_date,
+                                        max_date_allowed=max_date,
+                                        date=max_date,
+                                        display_format="DD.MM.YYYY",
+                                        placeholder="Bitiş",
+                                        className="w-100 form-control-sm",
+                                        persistence=True,
+                                        persistence_type="local",
+                                    ),
+                                ],
+                                xs=12,
+                                sm=6,
+                                md=5,
+                                lg=4,
+                                className="text-center"
+                            ),
+
+                            # Butonlar
+                            dbc.Col(
+                                dbc.ButtonGroup(
+                                    [
+                                        dbc.Button("Bugün", id="today-button", color="primary", outline=True, size="sm", className="px-3 py-1"),
+                                        dbc.Button("Son İşlem", id="last-date-button", color="secondary", outline=True, size="sm", className="px-3 py-1"),
+                                        dbc.Button("Temizle", id="reset-date-button", color="danger", outline=True, size="sm", className="px-3 py-1"),
+                                    ],
+                                    className="d-flex flex-wrap justify-content-center gap-2 w-100"
+                                ),
+                                xs=12,
+                                sm=12,
+                                md="auto",
+                                lg="auto",
+                                className="d-flex align-items-end justify-content-center"
+                            ),
+                        ]
+                    ),
+
+                    # Segment + Müşteri + Temizle
+                    dbc.Row(
+                        className="g-3 justify-content-center",
+                        children=[
+                            dbc.Col(segment_dropdown, xs=12, sm=6, md=5, lg=4, className="mb-2 mb-md-0"),
+                            dbc.Col(customer_dropdown, xs=12, sm=6, md=5, lg=4, className="mb-2 mb-md-0"),
+                            dbc.Col(
+                                dbc.Button(
+                                    "🧹 Tüm Filtreleri Temizle",
+                                    id="reset-filters-button",
+                                    color="outline-danger",
+                                    size="md",
+                                    className="w-100 py-2"
+                                ),
+                                xs=12,
+                                sm=12,
+                                md=12,
+                                lg=4,
+                                className="d-flex align-items-center"
+                            ),
+                        ]
+                    ),
+                ]),
+                className="mb-4 shadow-sm border-0 mx-auto",
+                style={"maxWidth": "980px"}  # masaüstünde çok yayılmasın, ortalı kalsın
+            ),
 
             # Grafikler
             dbc.Row([
@@ -133,7 +204,7 @@ def main_layout(df):
                 dbc.Col(dcc.Graph(id="segment-scatter", figure=segment_scatter(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
                                   style={'height': '50vh'}), md=12)
-            ]),
+            ], className="mb-5"),
 
             html.Label("Kâr Marjı Eşiği (%)", className="w-100 text-center text-body mt-4"),
             dcc.Slider(
@@ -142,14 +213,19 @@ def main_layout(df):
                 marks={i: f"%{i}" for i in range(5, 31, 5)},
                 tooltip={"placement": "bottom", "always_visible": True},
                 className="w-100"
+                
             ),
+            
+            dbc.Row(className="mt-5"),  # sadece boş row
 
             dbc.Row([
                 dbc.Col(dcc.Graph(id="profit-scatter", figure=profit_scatter(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
                                   style={'height': '60vh'}), md=12)
-            ]),
-
+            ], className="mb-5"),
+            
+            #dbc.Row(className="my-5"),  # sadece boş row
+            
             dbc.Row([
                 dbc.Col(dcc.Graph(id="sales-year-comparison", figure=sales_year_comparison_chart(df), responsive=True,
                                   config={'responsive': True, 'displayModeBar': False},
