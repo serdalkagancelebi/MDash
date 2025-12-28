@@ -24,8 +24,12 @@ app = dash.Dash(
         dbc.themes.BOOTSTRAP,
         dbc.icons.FONT_AWESOME,
         "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@latest/dbc.min.css",
+        "/assets/custom.css",  # Tron grid + neon efektleri
     ],
-    suppress_callback_exceptions=True
+    suppress_callback_exceptions=True,
+    meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+    ]
 )
 server = app.server
 load_figure_template(["bootstrap", "bootstrap_dark"])
@@ -38,6 +42,35 @@ df_global["Tahsilat"] = pd.to_numeric(df_global["Tahsilat"], errors="coerce")
 df_global["Gider"] = pd.to_numeric(df_global["Gider"], errors="coerce")
 
 app.layout = main_layout(df_global)
+
+# Tema switch - tüm sayfayı dark/light yap (clientside)
+clientside_callback(
+    """
+    function(switchValue) {
+        const theme = switchValue ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        localStorage.setItem('dashTheme', theme);
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("color-mode-switch", "id"),  # dummy
+    Input("color-mode-switch", "value"),
+    prevent_initial_call=False
+)
+
+# Sayfa yüklendiğinde kaydedilmiş temayı uygula
+clientside_callback(
+    """
+    function(n) {
+        const savedTheme = localStorage.getItem('dashTheme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        return savedTheme === 'light';
+    }
+    """,
+    Output("color-mode-switch", "value"),
+    Input("theme-wrapper", "id"),  # dummy tetikleyici
+    prevent_initial_call=False
+)
 
 # Dosya yükleme
 @app.callback(
@@ -70,7 +103,7 @@ def parse_upload(contents, filename):
     except Exception as e:
         return None, f"❌ Hata: {str(e)}"
 
-# Dashboard callback
+# Dashboard callback (tüm grafiklerin arka planı şeffaf yapıldı)
 @app.callback(
     [
         Output("sales-year-comparison", "figure"),
@@ -107,14 +140,45 @@ def update_dashboard(start_date, end_date, selected_segments, selected_customers
         mask &= df["Müşteri"].isin(selected_customers)
     df_filtered = df[mask]
     template = "bootstrap" if is_light else "bootstrap_dark"
-    fig1 = sales_year_comparison_chart(df_filtered); fig1.update_layout(template=template)
-    fig2 = top_stock_chart(df_filtered); fig2.update_layout(template=template)
-    fig3 = cash_vs_expense_pie(df_filtered); fig3.update_layout(template=template)
-    fig4 = segment_scatter(df_filtered); fig4.update_layout(template=template)
-    fig5 = profit_scatter(df_filtered, threshold=threshold_percent / 100 if threshold_percent else 0.10); fig5.update_layout(template=template)
+
+    fig1 = sales_year_comparison_chart(df_filtered)
+    fig1.update_layout(
+        template=template,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)"
+    )
+
+    fig2 = top_stock_chart(df_filtered)
+    fig2.update_layout(
+        template=template,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)"
+    )
+
+    fig3 = cash_vs_expense_pie(df_filtered)
+    fig3.update_layout(
+        template=template,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)"
+    )
+
+    fig4 = segment_scatter(df_filtered)
+    fig4.update_layout(
+        template=template,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)"
+    )
+
+    fig5 = profit_scatter(df_filtered, threshold=threshold_percent / 100 if threshold_percent else 0.10)
+    fig5.update_layout(
+        template=template,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)"
+    )
+
     return fig1, fig2, fig3, fig4, fig5, generate_kpi_cards(df_filtered)
 
-# Satış trend callback
+# Satış trend callback (burada da şeffaflık eklendi)
 @app.callback(
     Output("sales-trend", "figure"),
     [Input("sales-trend-range", "value"),
@@ -139,8 +203,15 @@ def update_sales_trend(selected_range, is_light, uploaded_json):
         start_date = today - pd.DateOffset(years=1)
     start_date = pd.to_datetime(start_date)
     df_filtered = df[df["Tarih"] >= start_date]
+
     fig = sales_trend_chart(df_filtered)
-    fig.update_layout(template="bootstrap" if is_light else "bootstrap_dark")
+    fig.update_layout(
+        template="bootstrap" if is_light else "bootstrap_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)"
+        # font_color="var(--bs-body-color)"  # istersen aç, ama genelde otomatik oluyor
+    )
+
     return fig
 
 # Tarih butonları
