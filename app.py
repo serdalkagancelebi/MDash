@@ -24,26 +24,25 @@ app = dash.Dash(
         dbc.themes.BOOTSTRAP,
         dbc.icons.FONT_AWESOME,
         "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@latest/dbc.min.css",
-        "/assets/custom.css",  # Tron grid + neon efektleri
+        "/assets/custom.css",
     ],
     suppress_callback_exceptions=True,
-    meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
-    ]
+    meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}]
 )
 server = app.server
 load_figure_template(["bootstrap", "bootstrap_dark"])
 
 # Dummy veri
 df_global = pd.read_csv("data/mikro_dummy_data.csv")
-df_global["Tarih"] = pd.to_datetime(df_global["Tarih"], errors="coerce", infer_datetime_format=True)
+df_global["Tarih"] = pd.to_datetime(df_global["Tarih"], errors="coerce")
 df_global["Satış"] = pd.to_numeric(df_global["Satış"], errors="coerce")
 df_global["Tahsilat"] = pd.to_numeric(df_global["Tahsilat"], errors="coerce")
 df_global["Gider"] = pd.to_numeric(df_global["Gider"], errors="coerce")
+df_global = df_global.dropna(subset=["Tarih", "Satış", "Tahsilat", "Gider"]).copy()
 
 app.layout = main_layout(df_global)
 
-# Tema switch - tüm sayfayı dark/light yap (clientside)
+# Tema switch
 clientside_callback(
     """
     function(switchValue) {
@@ -53,12 +52,11 @@ clientside_callback(
         return window.dash_clientside.no_update;
     }
     """,
-    Output("color-mode-switch", "id"),  # dummy
+    Output("color-mode-switch", "id"),
     Input("color-mode-switch", "value"),
     prevent_initial_call=False
 )
 
-# Sayfa yüklendiğinde kaydedilmiş temayı uygula
 clientside_callback(
     """
     function(n) {
@@ -68,7 +66,7 @@ clientside_callback(
     }
     """,
     Output("color-mode-switch", "value"),
-    Input("theme-wrapper", "id"),  # dummy tetikleyici
+    Input("theme-wrapper", "id"),
     prevent_initial_call=False
 )
 
@@ -94,16 +92,16 @@ def parse_upload(contents, filename):
             return None, "❌ Sadece CSV veya Excel dosyası yükleyebilirsiniz!"
         if "Tarih" not in df.columns:
             return None, "❌ Dosyada 'Tarih' sütunu eksik!"
-        df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce", infer_datetime_format=True)
-        df = df.dropna(subset=["Tarih"])
+        df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce")
         df["Satış"] = pd.to_numeric(df["Satış"], errors="coerce")
         df["Tahsilat"] = pd.to_numeric(df["Tahsilat"], errors="coerce")
         df["Gider"] = pd.to_numeric(df["Gider"], errors="coerce")
+        df = df.dropna(subset=["Tarih", "Satış", "Tahsilat", "Gider"]).copy()
         return df.to_json(date_format="iso", orient="split"), f"✅ {filename} yüklendi"
     except Exception as e:
         return None, f"❌ Hata: {str(e)}"
 
-# Dashboard callback (tüm grafiklerin arka planı şeffaf yapıldı)
+# Dashboard callback
 @app.callback(
     [
         Output("sales-year-comparison", "figure"),
@@ -129,8 +127,10 @@ def update_dashboard(start_date, end_date, selected_segments, selected_customers
     df = pd.read_json(uploaded_json, orient="split") if uploaded_json else df_global.copy()
     if df.empty or "Tarih" not in df.columns:
         raise PreventUpdate
-    df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce", infer_datetime_format=True)
-    df = df.dropna(subset=["Tarih"])
+    df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce")
+    df = df.dropna(subset=["Tarih"]).copy()
+    if df.empty:
+        raise PreventUpdate
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     mask = (df["Tarih"] >= start_date) & (df["Tarih"] <= end_date)
@@ -142,43 +142,19 @@ def update_dashboard(start_date, end_date, selected_segments, selected_customers
     template = "bootstrap" if is_light else "bootstrap_dark"
 
     fig1 = sales_year_comparison_chart(df_filtered)
-    fig1.update_layout(
-        template=template,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
-
     fig2 = top_stock_chart(df_filtered)
-    fig2.update_layout(
-        template=template,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
-
     fig3 = cash_vs_expense_pie(df_filtered)
-    fig3.update_layout(
-        template=template,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
-
     fig4 = segment_scatter(df_filtered)
-    fig4.update_layout(
-        template=template,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
-
     fig5 = profit_scatter(df_filtered, threshold=threshold_percent / 100 if threshold_percent else 0.10)
-    fig5.update_layout(
-        template=template,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
+
+    for fig in [fig1, fig2, fig3, fig4, fig5]:
+        fig.update_layout(template=template,
+                          paper_bgcolor="rgba(0,0,0,0)",
+                          plot_bgcolor="rgba(0,0,0,0)")
 
     return fig1, fig2, fig3, fig4, fig5, generate_kpi_cards(df_filtered)
 
-# Satış trend callback (burada da şeffaflık eklendi)
+# Satış trend callback
 @app.callback(
     Output("sales-trend", "figure"),
     [Input("sales-trend-range", "value"),
@@ -190,8 +166,10 @@ def update_sales_trend(selected_range, is_light, uploaded_json):
     df = pd.read_json(uploaded_json, orient="split") if uploaded_json else df_global.copy()
     if df.empty or "Tarih" not in df.columns:
         raise PreventUpdate
-    df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce", infer_datetime_format=True)
-    df = df.dropna(subset=["Tarih"])
+    df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce")
+    df = df.dropna(subset=["Tarih"]).copy()
+    if df.empty:
+        raise PreventUpdate
     today = pd.Timestamp.today()
     if selected_range == "1M":
         start_date = today - pd.DateOffset(months=1)
@@ -201,17 +179,12 @@ def update_sales_trend(selected_range, is_light, uploaded_json):
         start_date = today - pd.DateOffset(months=6)
     else:
         start_date = today - pd.DateOffset(years=1)
-    start_date = pd.to_datetime(start_date)
     df_filtered = df[df["Tarih"] >= start_date]
 
     fig = sales_trend_chart(df_filtered)
-    fig.update_layout(
-        template="bootstrap" if is_light else "bootstrap_dark",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-        # font_color="var(--bs-body-color)"  # istersen aç, ama genelde otomatik oluyor
-    )
-
+    fig.update_layout(template="bootstrap" if is_light else "bootstrap_dark",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      plot_bgcolor="rgba(0,0,0,0)")
     return fig
 
 # Tarih butonları
@@ -232,7 +205,7 @@ def manage_dates(today_clicks, last_clicks, reset_clicks, start_state, end_state
     df = pd.read_json(uploaded_json, orient="split") if uploaded_json else df_global.copy()
     if df.empty or "Tarih" not in df.columns:
         raise PreventUpdate
-    df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce", infer_datetime_format=True)
+    df["Tarih"] = pd.to_datetime(df["Tarih"], errors="coerce")
     df = df.dropna(subset=["Tarih"])
     min_date = df["Tarih"].min().date()
     max_date = df["Tarih"].max().date()
