@@ -140,6 +140,8 @@ def main_layout(df):
                                         className="w-100 form-control-sm",
                                         persistence=True,
                                         persistence_type="local",
+                                        with_portal=False,
+                                        calendar_orientation="horizontal"
                                     ),
                                 ],
                                 xs=12, sm=6, md=5, lg=4,
@@ -163,6 +165,8 @@ def main_layout(df):
                                         className="w-100 form-control-sm",
                                         persistence=True,
                                         persistence_type="local",
+                                        with_portal=False,
+                                        calendar_orientation="horizontal"
                                     ),
                                 ],
                                 xs=12, sm=6, md=5, lg=4,
