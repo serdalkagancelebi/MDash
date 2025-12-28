@@ -22,24 +22,35 @@ def main_layout(df):
         children=dbc.Container([
             # Dosya yükleme + Store
             dbc.Card([
-                dbc.CardBody([
-                    html.H5("Kendi Verinizi Yükleyin", className="text-center mb-3"),
-                    dcc.Upload(
-                        id="upload-data",
-                        children=html.Div([
-                            "CSV veya Excel dosyanızı sürükleyin veya ",
-                            html.A("seçin", href="#", style={"color": "white"})
-                        ]),
-                        style={
-                            "width": "100%", "height": "60px", "lineHeight": "60px",
-                            "borderWidth": "1px", "borderStyle": "dashed", "borderRadius": "5px",
-                            "textAlign": "center", "margin": "10px"
-                        },
-                        multiple=False
+            dbc.CardBody([
+                html.H5("Kendi Verinizi Yükleyin", className="text-center mb-3"),
+                dcc.Upload(
+                    id="upload-data",
+                    children=html.Div([
+                        "CSV veya Excel dosyanızı sürükleyin veya ",
+                        html.A("seçin", href="#", style={"color": "inherit"}),  # inherit → tema uyumlu olsun
+                    ]),
+                    style={
+                        "width": "100%", "height": "60px", "lineHeight": "60px",
+                        "borderWidth": "1px", "borderStyle": "dashed", "borderRadius": "5px",
+                        "textAlign": "center", "margin": "10px 0"
+                    },
+                    multiple=False
+                ),
+                html.Div([
+                    "Örnek veri setini indirmek için ",
+                    html.A(
+                        "buraya tıklayın",
+                        href="/assets/ornekveri.csv",
+                        download="ornek_veri.csv",           # indirme adı olarak çıksın
+                        target="_blank",
+                        style={"color": "var(--bs-primary)", "textDecoration": "underline"}
                     ),
-                    html.Div(id="upload-status", className="text-center mt-2"),
-                    dcc.Store(id="uploaded-data", storage_type="memory")
-                ])
+                    "."
+                ], className="text-center mt-2 small text-muted"),
+                html.Div(id="upload-status", className="text-center mt-2"),
+                dcc.Store(id="uploaded-data", storage_type="memory")
+            ])
             ], className="mb-4"),
 
             # Başlık + Tema toggle
